@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
@@ -22,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen>
     Future(() => Navigator.pushReplacement(
         context,
         CupertinoPageRoute(
-          builder: (context) => HomeScreen(),
+          builder: (context) => const HomeScreen(),
         )));
     super.initState();
   }
