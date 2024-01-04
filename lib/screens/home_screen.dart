@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_swipe_action_cell/core/cell.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive/hive.dart';
 
 import 'package:weather_app/constants/my_colors.dart';
 import 'package:weather_app/constants/my_size.dart';
@@ -27,6 +27,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final box = Hive.box<WeatherModel>('WeatherBox');
   bool internet = true;
+  List<String> cityName = ['tehran', 'Dubai', 'London', 'New York'];
+  bool isLoading = false;
+  List<WeatherModel> weatherList = [];
   ConnectivityResult _connectivityResult = ConnectivityResult.none;
   final Connectivity _connectivity = Connectivity();
   late StreamSubscription<ConnectivityResult> connectivitySubscription;
@@ -43,15 +46,20 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _updateConnectionStatus(ConnectivityResult result) async {
     setState(() {
       _connectivityResult = result;
-      print(result);
     });
     if (_connectivityResult == ConnectivityResult.wifi ||
         _connectivityResult == ConnectivityResult.mobile ||
         _connectivityResult == ConnectivityResult.ethernet) {
-      setState(() {
-        internet = true;
+      Future(() {
+        if (box.isEmpty) {
+          initGetData();
+        } else {
+          update();
+        }
+        setState(() {
+          internet = true;
+        });
       });
-      update();
     } else {
       setState(() {
         internet = false;
@@ -61,44 +69,12 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  List<String> cityName = ['tehran', 'Dubai', 'London', 'New York'];
-  bool isLoading = false;
   final TextEditingController searchController = TextEditingController();
   @override
   void initState() {
-    initConnectivity();
-
     connectivitySubscription =
         _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
-    setState(() {});
     super.initState();
-  }
-
-  update() async {
-    setState(() {
-      box.clear();
-      isLoading = true;
-    });
-    for (var element in cityName) {
-      await getWeathers(element);
-    }
-
-    setState(() {
-      isLoading = false;
-    });
-  }
-
-  Future<void> getWeathers(String location) async {
-    final IWeatherRepository dataSource = locator.get();
-    try {
-      final response = await dataSource.getWeather(location);
-      response.fold((error) {}, (response) {
-        box.add(response);
-        setState(() {});
-      });
-    } catch (e) {
-      return;
-    }
   }
 
   @override
@@ -114,7 +90,18 @@ class _HomeScreenState extends State<HomeScreen> {
     return isLoading
         ? const MyLoading()
         : RefreshIndicator(
-            onRefresh: () => update(),
+            backgroundColor: MyColors.greyBox,
+            color: MyColors.blueLight80,
+            onRefresh: () {
+              return Future(() {
+                if (_connectivityResult == ConnectivityResult.wifi ||
+                    _connectivityResult == ConnectivityResult.mobile ||
+                    _connectivityResult == ConnectivityResult.ethernet) {
+                  update();
+                  setState(() {});
+                }
+              });
+            },
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               child: Column(
@@ -173,12 +160,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                     mySnackBar(
                                         'Please Enter Location', context));
                               } else {
-                                setState(() {
+                                Future(() async {
                                   isLoading = true;
-
-                                  getWeathers(searchController.text);
+                                  setState(() {});
+                                  await getWeathers(searchController.text);
                                   searchController.text = '';
                                   isLoading = false;
+                                  setState(() {});
                                 });
                               }
                             },
@@ -207,10 +195,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           vertical: 20, horizontal: MySize.paddingFromEdges),
                       itemCount: box.length,
                       itemBuilder: (context, index) {
-                        List<WeatherModel> weatherList = box.values.toList();
+                        weatherList = box.values.toList();
+
                         return SwipeActionCell(
                           key: ObjectKey(weatherList[index]),
-                          isDraggable: true,
                           trailingActions: <SwipeAction>[
                             SwipeAction(
                               performsFirstActionWithFullSwipe: true,
@@ -228,8 +216,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               color: Colors.transparent,
                               onTap: (CompletionHandler handler) async {
+                                await handler(true);
                                 weatherList.removeAt(index);
-                                box.delete(index);
+                                await box.delete(index);
+                                Future(() {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      mySnackBar('Delete', context));
+                                });
+
                                 setState(() {});
                               },
                             ),
@@ -266,5 +260,50 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           );
+  }
+
+  Future<void> initGetData() async {
+    box.clear();
+    weatherList.clear();
+    isLoading = true;
+
+    setState(() {});
+
+    for (var element in cityName) {
+      await getWeathers(element);
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  Future<void> update() async {
+    box.clear();
+    weatherList.clear();
+    isLoading = true;
+
+    setState(() {});
+
+    for (var element in box.values) {
+      await getWeathers(element.cityName);
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  Future<void> getWeathers(String location) async {
+    final IWeatherRepository dataSource = locator.get();
+    try {
+      final response = await dataSource.getWeather(location);
+      response.fold((error) {}, (response) {
+        box.add(response);
+        setState(() {});
+      });
+    } catch (e) {
+      return;
+    }
   }
 }
