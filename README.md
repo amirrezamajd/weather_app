@@ -1,5 +1,6 @@
 # Weather App By Flutter
 
+[![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)]()
 A small application to add the desired city and see the current temperature of that city, developed with Flutter
 
 
