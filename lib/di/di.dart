@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
-import 'package:weather_app/data/models/datasource/weather_datasource.dart';
+import 'package:weather_app/data/datasource/weather_datasource.dart';
 import 'package:weather_app/data/repository/weather_repository.dart';
 
 final locator = GetIt.instance;

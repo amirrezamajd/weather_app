@@ -17,11 +17,13 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     _controller =
         AnimationController(vsync: this, duration: const Duration(seconds: 1));
-    Future(() => Navigator.pushReplacement(
-        context,
-        CupertinoPageRoute(
-          builder: (context) => const HomeScreen(),
-        )));
+    Future.delayed(
+        const Duration(seconds: 2),
+        () => Navigator.pushReplacement(
+            context,
+            CupertinoPageRoute(
+              builder: (context) => const HomeScreen(),
+            )));
     super.initState();
   }
 

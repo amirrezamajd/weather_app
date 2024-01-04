@@ -1,16 +1,36 @@
-class WeatherModel {
+import 'package:flutter/cupertino.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:weather_app/utility/utility.dart';
+part 'weather_model.g.dart';
+
+@HiveType(typeId: 1)
+class WeatherModel extends HiveObject {
+  @HiveField(0)
   final double temp;
+  @HiveField(1)
   final double tempMax;
+  @HiveField(2)
   final double tempMin;
+  @HiveField(3)
   final double lat;
+  @HiveField(4)
   final double long;
+  @HiveField(5)
   final double feelsLike;
+  @HiveField(6)
   final int pressure;
+  @HiveField(7)
   final String description;
+  @HiveField(8)
   final String currently;
+  @HiveField(9)
   final int humidity;
+  @HiveField(10)
   final double windSpeed;
+  @HiveField(11)
   final String cityName;
+  @HiveField(12)
+  final DateTime time;
 
   WeatherModel({
     required this.temp,
@@ -25,6 +45,7 @@ class WeatherModel {
     required this.humidity,
     required this.windSpeed,
     required this.cityName,
+    required this.time,
   });
 
   factory WeatherModel.fromJson(Map<String, dynamic> jsonObject) {
@@ -41,6 +62,7 @@ class WeatherModel {
       humidity: jsonObject['main']['humidity'],
       windSpeed: (jsonObject['wind']['speed']).toDouble(),
       cityName: jsonObject['name'],
+      time: DateTime.now(),
     );
   }
 }

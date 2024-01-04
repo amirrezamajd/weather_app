@@ -3,26 +3,6 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:weather_app/constants/my_colors.dart';
 import 'package:weather_app/constants/my_text_style.dart';
 
-class UvIndex {
-  static String mapUviValueToString({required dynamic uvi}) {
-    String uvIndex;
-    if (uvi <= 2) {
-      return uvIndex = 'Low';
-    } else if (uvi <= 5) {
-      return uvIndex = 'Medium';
-    } else if (uvi <= 7) {
-      return uvIndex = 'High';
-    } else if (uvi <= 10) {
-      return uvIndex = 'Very High';
-    } else if (uvi >= 11) {
-      return uvIndex = 'Extreme';
-    } else {
-      uvIndex = 'Unknown';
-    }
-    return uvIndex;
-  }
-}
-
 class MapString {
   static Widget mapInputToWeather(BuildContext context, String input) {
     String text;
