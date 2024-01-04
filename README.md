@@ -1,16 +1,18 @@
-# weather_app
+# Weather App By Flutter
 
-A new Flutter project.
+[![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://github.com/amirrezamajd/weather_app)
 
-## Getting Started
+A small application to add the desired city and see the current temperature of that city, developed with Flutter
 
-This project is a starting point for a Flutter application.
+## Screenshots
+<img src="https://github.com/amirrezamajd/weather_app/assets/94396701/cc3d3a8a-e52d-48f7-a662-fdcfbdc223d1" width="100">
 
-A few resources to get you started if this is your first Flutter project:
+# 🧑‍💻 Developer
+Amirreza Majd
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## 🔗 Links
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+[![instagram](https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://instagram.com/amirreza.majd)
+[![telegram](https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/amirrezamajd)
+
+
