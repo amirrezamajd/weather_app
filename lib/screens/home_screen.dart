@@ -106,160 +106,159 @@ class _HomeScreenState extends State<HomeScreen> {
               physics: const AlwaysScrollableScrollPhysics(),
               child: Column(
                 children: [
-                  Visibility(
-                    visible: !internet,
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 5),
-                      color: MyColors.redColor,
-                      child: const Center(child: Text('No Internet')),
-                    ),
-                  ),
+                  _internetErrorWidget(),
                   const SizedBox(
                     height: 20,
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: MySize.paddingFromEdges),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 5,
-                          child: Container(
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                  color: const Color(0xffD0EFFC), width: 1),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: TextField(
-                              controller: searchController,
-                              cursorColor: MyColors.blueLight80,
-                              style: MyTextStyle.inter12,
-                              decoration: InputDecoration(
-                                hintText: 'Search Location...',
-                                hintStyle: MyTextStyle.inter12Grey.copyWith(
-                                  color: MyColors.greyColor.withOpacity(0.8),
-                                ),
-                                border: InputBorder.none,
-                                contentPadding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: GestureDetector(
-                            onTap: () {
-                              if (searchController.text.isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    mySnackBar(
-                                        'Please Enter Location', context));
-                              } else {
-                                Future(() async {
-                                  isLoading = true;
-                                  setState(() {});
-                                  await getWeathers(searchController.text);
-                                  searchController.text = '';
-                                  isLoading = false;
-                                  setState(() {});
-                                });
-                              }
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: MyColors.greyBox,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Icon(
-                                CupertinoIcons.plus,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    child: ListView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 20, horizontal: MySize.paddingFromEdges),
-                      itemCount: box.length,
-                      itemBuilder: (context, index) {
-                        weatherList = box.values.toList();
-
-                        return SwipeActionCell(
-                          key: ObjectKey(weatherList[index]),
-                          trailingActions: <SwipeAction>[
-                            SwipeAction(
-                              performsFirstActionWithFullSwipe: true,
-                              content: Padding(
-                                padding:
-                                    EdgeInsets.only(top: index == 0 ? 0 : 10),
-                                child: Center(
-                                  child: Text(
-                                    'Delete',
-                                    style: MyTextStyle.inter12
-                                        .copyWith(color: MyColors.redColor),
-                                    maxLines: 1,
-                                  ),
-                                ),
-                              ),
-                              color: Colors.transparent,
-                              onTap: (CompletionHandler handler) async {
-                                await handler(true);
-                                weatherList.removeAt(index);
-                                await box.delete(index);
-                                Future(() {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      mySnackBar('Delete', context));
-                                });
-
-                                setState(() {});
-                              },
-                            ),
-                          ],
-                          child: Container(
-                            padding: const EdgeInsets.all(10),
-                            margin: EdgeInsets.only(top: index == 0 ? 0 : 10),
-                            decoration: BoxDecoration(
-                              color: MyColors.greyBox,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(weatherList[index].cityName),
-                                const Spacer(),
-                                Text(
-                                    '${weatherList[index].time.hour}:${weatherList[index].time.minute}'),
-                                const Spacer(),
-                                Text('${weatherList[index].temp}'),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                MapString.mapStringToIcon(
-                                    weatherList[index].currently, 26),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+                  _topSearchBox(),
+                  _list(),
                 ],
               ),
             ),
           );
+  }
+
+  Widget _list() {
+    return SizedBox(
+      child: ListView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        padding: const EdgeInsets.symmetric(
+            vertical: 20, horizontal: MySize.paddingFromEdges),
+        itemCount: box.length,
+        itemBuilder: (context, index) {
+          weatherList = box.values.toList();
+
+          return SwipeActionCell(
+            key: ObjectKey(weatherList[index]),
+            trailingActions: <SwipeAction>[
+              SwipeAction(
+                performsFirstActionWithFullSwipe: true,
+                content: Padding(
+                  padding: EdgeInsets.only(top: index == 0 ? 0 : 10),
+                  child: Center(
+                    child: Text(
+                      'Delete',
+                      style: MyTextStyle.inter12
+                          .copyWith(color: MyColors.redColor),
+                      maxLines: 1,
+                    ),
+                  ),
+                ),
+                color: Colors.transparent,
+                onTap: (CompletionHandler handler) async {
+                  await handler(true);
+                  weatherList.removeAt(index);
+                  await box.delete(index);
+                  Future(() {
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(mySnackBar('Delete', context));
+                  });
+
+                  setState(() {});
+                },
+              ),
+            ],
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              margin: EdgeInsets.only(top: index == 0 ? 0 : 10),
+              decoration: BoxDecoration(
+                color: MyColors.greyBox,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(weatherList[index].cityName),
+                  const Spacer(),
+                  Text(
+                      '${weatherList[index].time.hour}:${weatherList[index].time.minute}'),
+                  const Spacer(),
+                  Text('${weatherList[index].temp} \u00B0C'),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  MapString.mapStringToIcon(weatherList[index].currently, 26),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _topSearchBox() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: MySize.paddingFromEdges),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 5,
+            child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                border: Border.all(color: const Color(0xffD0EFFC), width: 1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: TextField(
+                controller: searchController,
+                cursorColor: MyColors.blueLight80,
+                style: MyTextStyle.inter12,
+                decoration: InputDecoration(
+                  hintText: 'Search Location...',
+                  hintStyle: MyTextStyle.inter12Grey.copyWith(
+                    color: MyColors.greyColor.withOpacity(0.8),
+                  ),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          Expanded(
+            flex: 1,
+            child: GestureDetector(
+              onTap: () {
+                if (searchController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      mySnackBar('Please Enter Location', context));
+                } else {
+                  getWeathersBySearch(searchController.text);
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: MyColors.greyBox,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  CupertinoIcons.plus,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _internetErrorWidget() {
+    return Visibility(
+      visible: !internet,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        color: MyColors.redColor,
+        child: const Center(child: Text('No Internet')),
+      ),
+    );
   }
 
   Future<void> initGetData() async {
@@ -301,6 +300,90 @@ class _HomeScreenState extends State<HomeScreen> {
       response.fold((error) {}, (response) {
         box.add(response);
         setState(() {});
+      });
+    } catch (e) {
+      return;
+    }
+  }
+
+  Future<void> getWeathersBySearch(String location) async {
+    final IWeatherRepository dataSource = locator.get();
+    List<WeatherModel> list = [];
+    try {
+      final response = await dataSource.getWeather(location);
+      response.fold((error) {}, (response) {
+        list.add(response);
+        setState(() {});
+        showCupertinoModalPopup(
+          context: context,
+          builder: (context) {
+            return Scaffold(
+              body: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Icon(
+                        Icons.close,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: MySize.paddingFromEdges),
+                      itemCount: list.length,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          padding: const EdgeInsets.all(10),
+                          margin: EdgeInsets.only(top: index == 0 ? 0 : 10),
+                          decoration: BoxDecoration(
+                            color: MyColors.greyBox,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(list[index].cityName),
+                              const Spacer(),
+                              Text(list[index].description),
+                              const Spacer(),
+                              InkWell(
+                                onTap: () {
+                                  box.add(list[index]);
+                                  setState(() {});
+                                  Navigator.pop(context);
+                                },
+                                child: const Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Icon(
+                                    Icons.add,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
       });
     } catch (e) {
       return;
